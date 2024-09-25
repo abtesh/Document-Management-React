@@ -1,0 +1,69 @@
+body {
+  margin: 0;
+  font-family: 'Arial', sans-serif;
+  background-color: #f4f4f9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #333;
+}
+
+.sidebar {
+  height: 100vh;
+  position: fixed;
+  top: 50;
+  left: 0;
+  width: 250px; /* Fixed width for sidebar */
+  z-index: 100;
+  border-right: 1px solid #c9c9c9;
+  background-color: #e9ecef; /* Slightly darker background for the heading */
+}
+
+.sidebar-heading {
+  font-weight: bold;
+  padding: 1rem;
+  border-bottom: 1px solid #ddd;
+  background-color: #e9ecef; /* Slightly darker background for the heading */
+}
+
+.nav {
+  padding: 0;
+  margin: 0;
+}
+
+.nav-link {
+  display: block; /* Ensure full width for clickable area */
+  padding: 0.75rem 1.25rem;
+  font-size: 1.1rem;
+  color: #333;
+  border-bottom: 1px solid #ddd; /* Border between items */
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.nav-link:hover {
+  background-color: #d4d4d4; /* Blue background on hover */
+  color: white; /* White text color on hover */
+  text-decoration: none; /* Remove underline on hover */
+}
+
+.nav-link.active {
+  font-weight: bold;
+  color: #76787a; /* Blue color for active link */
+  background-color: #e9ecef; /* Light gray background for active link */
+}
+
+.welcome-container {
+  margin-left: 250px; /* Space for sidebar */
+  padding: 2rem; /* Padding around the main content */
+}
+
+.buttons-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.btn {
+  font-size: 1rem;
+  padding: 10px 20px;
+}

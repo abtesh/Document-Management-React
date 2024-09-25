@@ -1,0 +1,14 @@
+.login-container {
+    background-color: #f8f9fa;
+}
+
+.card {
+    max-width: 400px;
+    width: 100%;
+    border-radius: 10px;
+}
+
+h2 {
+    font-weight: bold;
+    color: #007bff;
+}

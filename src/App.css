@@ -1,0 +1,124 @@
+/* General styles */
+.app {
+  display: flex;
+  flex-direction: column;
+  font-family: Arial, sans-serif;
+}
+
+nav ul {
+  list-style-type: none;
+  padding: 0;
+  display: flex;
+  justify-content: space-around;
+  background-color: #333;
+  margin: 0;
+}
+
+nav ul li {
+  display: inline;
+}
+
+nav ul li a {
+  color: white;
+  text-decoration: none;
+  padding: 14px 20px;
+  display: block;
+  text-align: center;
+}
+
+nav ul li a:hover {
+  background-color: #111;
+}
+
+/* Mobile Navigation (Hamburger Menu) */
+@media (max-width: 768px) {
+  nav ul {
+    flex-direction: column;
+    display: none;
+    width: 100%;
+  }
+  
+  nav ul li {
+    text-align: left;
+  }
+
+  nav.active ul {
+    display: flex;
+  }
+
+  .hamburger {
+    display: block;
+    background-color: #333;
+    padding: 14px;
+    cursor: pointer;
+    text-align: center;
+  }
+  
+  .hamburger span {
+    display: block;
+    height: 3px;
+    background-color: white;
+    margin: 4px 0;
+  }
+}
+
+.hamburger {
+  display: none;
+}
+
+.content {
+  padding: 20px;
+  flex: 1;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+form input, form button {
+  margin: 10px 0;
+  padding: 10px;
+  width: 100%;
+}
+
+form button {
+  background-color: #333;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+form button:hover {
+  background-color: #555;
+}
+
+/* Responsive Grid Layout for List Items */
+ul {
+  padding: 0;
+}
+
+li {
+  list-style: none;
+  background-color: #f1f1f1;
+  padding: 15px;
+  margin: 10px 0;
+  border-radius: 5px;
+}
+
+/* Grid for Desktop Layout */
+@media (min-width: 768px) {
+  .content {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+  
+  form {
+    max-width: none;
+    grid-column: span 2;
+  }
+}
