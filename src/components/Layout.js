@@ -1,5 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import myImage from '../Images/anbesa-removebg-preview.png'; 
 import '@fortawesome/fontawesome-free/css/all.min.css';
@@ -7,6 +8,7 @@ import './Layout.css'; // Import your CSS file for media queries
 
 function Layout({ children }) {
     const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const [unreadCount, setUnreadCount] = useState(0);
     const navigate = useNavigate();
 
     // Function to extract user's name from token
@@ -32,8 +34,49 @@ function Layout({ children }) {
         setSidebarOpen(!isSidebarOpen);
     };
 
+    // Fetch unread message count from backend
+    const fetchUnreadCount = async () => {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/messenger/inbox/unread-count`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            setUnreadCount(response.data);
+        } catch (error) {
+            console.error('Error fetching unread message count:', error);
+        }
+    };
+
+    useEffect(() => {
+        fetchUnreadCount(); // Fetch unread count on component mount
+
+        // Polling strategy: Refresh unread count every 10 seconds
+        const intervalId = setInterval(fetchUnreadCount, 10000);
+
+        return () => clearInterval(intervalId); // Cleanup interval on unmount
+    }, []);
+
+    // Function to mark messages as read when inbox is opened
+    const markMessagesAsRead = async () => {
+        try {
+            const token = localStorage.getItem('authToken');
+            await axios.get(`${process.env.REACT_APP_API_BASE_URL}/messenger/inbox/mark-as-read`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+            // After marking messages as read, fetch the updated unread count
+            fetchUnreadCount();
+        } catch (error) {
+            console.error('Error marking messages as read:', error);
+        }
+    };
+
     return (
         <div className="container-fluid">
+            {/* Header */}
             <header className="sticky-top row bg-light">
                 <div className="col-md-12">
                     <nav className="navbar navbar-expand-lg navbar-light">
@@ -77,6 +120,7 @@ function Layout({ children }) {
                 </div>
             </header>
 
+            {/* Main Layout */}
             <div className="container-fluid">
                 <div className="row">
                     {/* Sidebar */}
@@ -105,12 +149,13 @@ function Layout({ children }) {
                                 </li>
                                 <li className="nav-item mb-2">
                                     <Link className="nav-link px-3 py-2 rounded text-white" to="/message">
-                                        <i className="fas fa-envelope me-2"></i> Individual Message
+                                        <i className="fas fa-envelope me-2"></i> Send
                                     </Link>
                                 </li>
                                 <li className="nav-item mb-2">
-                                    <Link className="nav-link px-3 py-2 rounded text-white" to="/inbox">
-                                        <i className="fas fa-inbox me-2"></i> Inbox
+                                    <Link className="nav-link px-3 py-2 rounded text-white" to="/inbox" onClick={markMessagesAsRead}>
+                                        <i className="fas fa-inbox me-2"></i> Inbox 
+                                        {unreadCount > 0 && <span className="badge bg-danger">{unreadCount}</span>}
                                     </Link>
                                 </li>
                                 <li className="nav-item mb-2">

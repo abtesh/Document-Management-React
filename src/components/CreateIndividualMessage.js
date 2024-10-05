@@ -9,7 +9,6 @@ function CreateIndividualMessage() {
   const [receiverId, setReceiverId] = useState("");
   const [content, setContent] = useState("");
   const [attachments, setAttachments] = useState([]);
-  const [privileges, setPrivileges] = useState([]);
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [users, setUsers] = useState([]);
@@ -17,6 +16,21 @@ function CreateIndividualMessage() {
   const [searchQuery, setSearchQuery] = useState("");
   const [searching, setSearching] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
+
+  // Allowed file types
+  const allowedFileTypes = [
+    "application/pdf",                  // PDF
+    "application/msword",               // DOC
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document", // DOCX
+    "text/plain",                       // TXT
+    "application/vnd.ms-excel",         // XLS
+    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", // XLSX
+    "application/vnd.ms-powerpoint",    // PPT
+    "application/vnd.openxmlformats-officedocument.presentationml.presentation", // PPTX
+    "image/jpeg",                       // JPG
+    "image/png",                        // PNG
+    "image/gif"                         // GIF
+  ];
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -38,7 +52,7 @@ function CreateIndividualMessage() {
   const handleSearchChange = (event) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
-  
+
     const matchedUsers = users.filter(user => user.email && user.email.toLowerCase().includes(query));
     
     setShowDropdown(matchedUsers.length > 0 && query !== "");
@@ -59,52 +73,54 @@ function CreateIndividualMessage() {
 
   const handleAttachmentChange = (event) => {
     const files = Array.from(event.target.files);
-    setAttachments(files);
-    setPrivileges(files.map(() => "view"));
-  };
+    
+    // Check if all attachments are of allowed types
+    const invalidFiles = files.filter(file => !allowedFileTypes.includes(file.type));
 
-  const handlePrivilegeChange = (index, privilege) => {
-    setPrivileges((prevPrivileges) => {
-      const updatedPrivileges = [...prevPrivileges];
-      updatedPrivileges[index] = privilege;
-      return updatedPrivileges;
-    });
-  };
-
-  const mapPrivilegeToBooleans = (privilege) => {
-    return {
-      canView: privilege === "view" || privilege === "download",
-      canDownload: privilege === "download"
-    };
+    if (invalidFiles.length > 0) {
+      setError("One or more files have unsupported formats. Please upload only valid file types.");
+      setAttachments([]); // Clear attachments if invalid files are found
+    } else {
+      setAttachments(files);
+      setError(null); // Clear any previous error
+    }
   };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(null);
     setSuccess(null);
-  
-    // Check if receiverEmail is a valid email format and if receiverId is either set or allow empty
+
     const isValidEmail = /\S+@\S+\.\S+/.test(receiverEmail);
     if (!isValidEmail) {
       setError("Receiver's Email is required and must be a valid email format.");
       return;
     }
-  
-    // Only require receiverId if email was selected from the dropdown
+
     if (!receiverId && !users.some(user => user.email === receiverEmail)) {
       setError("Receiver's ID is required. Please select from the dropdown or enter a valid email.");
       return;
     }
-  
+
+    if (attachments.length === 0 && content.trim() === "") {
+      setError("Message content or attachment is required.");
+      return;
+    }
+
+    // Ensure attachments are valid before sending
+    if (error) {
+      return; // Stop submission if there's an error
+    }
+
     const token = localStorage.getItem('authToken');
     const formData = new FormData();
     formData.append("receiverEmail", receiverEmail);
     formData.append("content", content);
-  
+
     attachments.forEach((attachment) => {
       formData.append("attachments", attachment);
     });
-  
+
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/messenger/create`, formData, {
         headers: {
@@ -112,41 +128,14 @@ function CreateIndividualMessage() {
           'Content-Type': 'multipart/form-data'
         }
       });
-  
-      const messageId = response.data.id;
-      const uploadedAttachments = response.data.attachments;
-  
-      if (!uploadedAttachments || uploadedAttachments.length !== attachments.length) {
-        throw new Error("Mismatch between uploaded attachments and response data.");
-      }
-  
-      const privilegePromises = uploadedAttachments.map((attachment, index) => {
-        const { canView, canDownload } = mapPrivilegeToBooleans(privileges[index]);
-  
-        const params = new URLSearchParams();
-        params.append("messageId", messageId);
-        params.append("attachmentId", attachment);
-        params.append("userId", receiverId || receiverId); // Use a default if receiverId is not available
-        params.append("canView", canView.toString());
-        params.append("canDownload", canDownload.toString());
-  
-        return axios.post(`${process.env.REACT_APP_API_BASE_URL}/downloadFiles/setFilePrivilege`, params, {
-          headers: {
-            Authorization: 'Bearer ' + token,
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
-        });
-      });
-  
-      await Promise.all(privilegePromises);
-      setSuccess("Message sent and privileges set successfully.");
+
+      setSuccess("Message sent successfully.");
       setReceiverEmail("");
       setReceiverId("");
       setContent("");
       setAttachments([]);
-      setPrivileges([]);
     } catch (error) {
-      setError("Error sending message or setting privileges. Please try again.");
+      setError("Error sending message. Please try again.");
     }
   };
 
@@ -203,12 +192,12 @@ function CreateIndividualMessage() {
               )}
             </div>
             <div className="mb-4">
-              <label className="form-label">Message Content</label>
+              <label className="form-label">Notes</label>
               <textarea
                 className="form-control"
                 value={content}
                 onChange={handleContentChange}
-                placeholder="Write your message here"
+                placeholder="Short and Precise"
                 rows="4"
                 required
               ></textarea>
@@ -217,21 +206,17 @@ function CreateIndividualMessage() {
               <label className="form-label">Attachments</label>
               <input type="file" className="form-control" onChange={handleAttachmentChange} multiple />
             </div>
-            {attachments.map((attachment, index) => (
-              <div key={index} className="mb-3">
-                <select
-                  className="form-select"
-                  value={privileges[index] || "view"}
-                  onChange={(e) => handlePrivilegeChange(index, e.target.value)}
-                >
-                  <option value="view">View Only</option>
-                  <option value="download">Download</option>
-                </select>
-              </div>
-            ))}
+            <div className="mb-3 form-check">
+              <input 
+              type="checkbox"
+              className="form-check-input"
+              name="confidential"/>
+              <label className="form-check-label">confidential</label>
+            </div>
             <div className="text-center">
               <button type="submit" className="btn btn-primary px-4">Send Message</button>
             </div>
+            
           </form>
         </Card>
       </div>

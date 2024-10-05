@@ -13,7 +13,6 @@ const GroupMessageForm = () => {
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
     const [members, setMembers] = useState([]);
-    const [privileges, setPrivileges] = useState([]);
 
     const fetchMembers = async () => {
         try {
@@ -63,28 +62,11 @@ const GroupMessageForm = () => {
                 }
             );
             setSuccess('Member deleted successfully!');
-            // Update the members list
             setMembers(members.filter((member) => member.id !== memberId));
         } catch (error) {
             console.error('Error deleting member', error);
             setError('Failed to delete member.');
         }
-    };
-
-    const handlePrivilegeChange = (index, field) => {
-        const updatedPrivileges = [...privileges];
-        const currentPrivilege = updatedPrivileges[index] || { canView: false, canDownload: false };
-
-        if (field === 'canView') {
-            currentPrivilege.canView = true;
-            currentPrivilege.canDownload = false;
-        } else if (field === 'canDownload') {
-            currentPrivilege.canView = false;
-            currentPrivilege.canDownload = true;
-        }
-
-        updatedPrivileges[index] = currentPrivilege;
-        setPrivileges(updatedPrivileges);
     };
 
     const handleAddMember = async () => {
@@ -104,7 +86,7 @@ const GroupMessageForm = () => {
             );
             setSuccess('Member added successfully!');
             setNewMember('');
-            fetchMembers(); // Refetch members after adding a new one
+            fetchMembers();
         } catch (error) {
             console.error('Error adding member', error);
             setError('Failed to add member.');
@@ -125,7 +107,7 @@ const GroupMessageForm = () => {
 
         try {
             const token = localStorage.getItem('authToken');
-            const response = await axios.post(
+            await axios.post(
                 `${process.env.REACT_APP_API_BASE_URL}/groups/createMessage`,
                 formData,
                 {
@@ -135,36 +117,14 @@ const GroupMessageForm = () => {
                     },
                 }
             );
-            const { attachments: attachmentIds, groupId } = response.data;
-
-            for (let i = 0; i < attachmentIds.length; i++) {
-                const attachmentId = attachmentIds[i];
-                const privilege = privileges[i] || { canView: false, canDownload: false };
-
-                await axios.post(`${process.env.REACT_APP_API_BASE_URL}/downloadFiles/group/setFilePrivilege`, null, {
-                    params: {
-                        attachmentId,
-                        groupId: groupId,
-                        canView: privilege.canView,
-                        canDownload: privilege.canDownload
-                    },
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    }
-                });
-            }
-
-            setSuccess("Message sent and privileges set successfully!");
+            setSuccess("Message sent successfully!");
             setContent('');
             setAttachments([]);
-            setPrivileges([]);
         } catch (error) {
-            console.error('Error sending message or setting privileges', error);
+            console.error('Error sending message', error);
             setError('Failed to send message.');
         }
     };
-
-    const isMultipleFilesSelected = attachments.length > 1;
 
     return (
         <Layout>
@@ -194,35 +154,6 @@ const GroupMessageForm = () => {
                                     onChange={handleFileChange}
                                 />
                             </div>
-                            {!isMultipleFilesSelected && (
-                                <>
-                                    {Array.from(attachments).map((attachment, index) => (
-                                        <div className="mb-3" key={index}>
-                                            <label className="form-label">{attachment.name}</label>
-                                            <div className="form-check">
-                                                <input
-                                                    className="form-check-input"
-                                                    type="radio"
-                                                    name={`privilege-${index}`}
-                                                    checked={privileges[index]?.canView || false}
-                                                    onChange={() => handlePrivilegeChange(index, 'canView')}
-                                                />
-                                                <label className="form-check-label">Can View</label>
-                                            </div>
-                                            <div className="form-check">
-                                                <input
-                                                    className="form-check-input"
-                                                    type="radio"
-                                                    name={`privilege-${index}`}
-                                                    checked={privileges[index]?.canDownload || false}
-                                                    onChange={() => handlePrivilegeChange(index, 'canDownload')}
-                                                />
-                                                <label className="form-check-label">Can Download</label>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </>
-                            )}
                             <button type="submit" className="btn btn-primary">
                                 Send Message
                             </button>

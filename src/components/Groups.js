@@ -22,17 +22,30 @@ const Groups = () => {
                 setGroups(response.data);
             } catch (error) {
                 console.error('Error fetching groups:', error);
-                // Optionally, you could show an error message here
             }
         };
 
         fetchGroups();
     }, []);
 
-    const handleGroupClick = (groupId) => {
+    // const handleGroupClick = (groupId) => {
+    //     navigate(`/groups/${groupId}/messages`);
+    // };
+    const handleGroupClick = async (groupId) => {
         navigate(`/groups/${groupId}/messages`);
+        
+        // Mark messages as read
+        try {
+            const token = localStorage.getItem('authToken');
+            await axios.get(`${process.env.REACT_APP_API_BASE_URL}/groups/inbox/mark-as-read/${groupId}`, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+        } catch (error) {
+            console.error('Error marking messages as read:', error);
+        }
     };
-
     const handleSendMessageClick = (groupId) => {
         navigate(`/groups/${groupId}`);
     };
@@ -68,7 +81,7 @@ const Groups = () => {
                 <div className="row">
                     {filteredGroups.length > 0 ? (
                         filteredGroups.map((group) => (
-                            <div className="col-md-6 mb-4" key={group.id}>
+                            <div className="col-md-4 mb-4" key={group.id}>
                                 <GroupCard
                                     group={group}
                                     onGroupClick={() => handleGroupClick(group.id)}
