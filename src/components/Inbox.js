@@ -48,59 +48,49 @@ const Inbox = () => {
         }
     };
 
-    const handleAttachmentClick = async (fullFileName) => {
+    const handleAttachmentClick = async (fullFileName, isDownloadable) => {
         try {
             const token = localStorage.getItem('authToken');
             const fullEndpoint = `${VIEW_OR_DOWNLOAD_URL}?fileName=${encodeURIComponent(fullFileName)}`;
-            
             const response = await axios.get(fullEndpoint, {
                 headers: { Authorization: `Bearer ${token}` },
-                responseType: 'blob',
+                responseType: 'blob', // Ensure the response is treated as a blob
             });
             
             const contentType = response.headers['content-type'];
             const contentDisposition = response.headers['content-disposition'];
+            console.log("Content Type: " + contentType);
+            console.log("Content Disposition: " + contentDisposition);
             
-            const blob = new Blob([response.data], { type: contentType });
-            const url = window.URL.createObjectURL(blob);
-            
-            // Determine if the content-disposition header suggests inline or attachment
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
             const isAttachment = contentDisposition && contentDisposition.includes('attachment');
-            const isPdf = contentType === 'application/pdf';
-            const isImage = contentType.startsWith('image/');
-            
-            if (isPdf || (isImage && !isAttachment)) {
-                // For PDFs and images (not suggested for download)
-                const newTab = window.open(url, '_blank');
-                if (newTab) {
-                    newTab.focus();
-                } else {
-                    console.error('Failed to open file in a new tab.');
-                }
-            } else if (isAttachment || !isImage && !isPdf) {
-                // For other files or if download is suggested
+            const isInline = contentDisposition && contentDisposition.includes('inline');
+        
+            if (isAttachment) {
                 const link = document.createElement('a');
                 link.href = url;
-                link.setAttribute('download', fullFileName);
+                link.setAttribute('download', fullFileName); // Specify the file name
+                
+                // Append to the body, click to download, and then remove the link
                 document.body.appendChild(link);
                 link.click();
-                link.remove();
-            } else {
-                // For other viewable files
-                const newTab = window.open(url, '_blank');
+                document.body.removeChild(link);
+            } else if (isInline) {
+                const newTab = window.open(url, '_blank'); // Use the object URL here
                 if (newTab) {
                     newTab.focus();
                 } else {
                     console.error('Failed to open file in a new tab.');
                 }
             }
-            
+        
             // Clean up the object URL
             window.URL.revokeObjectURL(url);
-            
+        
         } catch (err) {
             console.error('Error viewing attachment', err);
         }
+        
     };
     const getOriginalFileName = (fullFileName) => {
         return fullFileName.split('_').slice(1).join('_');
@@ -137,8 +127,8 @@ const Inbox = () => {
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                     />
-        <button className="btn btn-secondary ml-2" onClick={handleSearch}>Search</button>
-                    </div>
+                    <button className="btn btn-secondary ml-2" onClick={handleSearch}>Search</button>
+                </div>
                 <h1 className="mb-4 inbox-title">Inbox</h1>
                 <div className="table-responsive">
                     <table className="table table-bordered table-hover">

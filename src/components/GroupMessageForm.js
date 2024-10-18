@@ -13,6 +13,7 @@ const GroupMessageForm = () => {
     const [success, setSuccess] = useState('');
     const [error, setError] = useState('');
     const [members, setMembers] = useState([]);
+    const [privileges, setPrivileges] = useState([]);
 
     const fetchMembers = async () => {
         try {
@@ -67,6 +68,21 @@ const GroupMessageForm = () => {
             console.error('Error deleting member', error);
             setError('Failed to delete member.');
         }
+    };
+    const handlePrivilegeChange = (index, field) => {
+        const updatedPrivileges = [...privileges];
+        const currentPrivilege = updatedPrivileges[index] || { canView: false, canDownload: false };
+
+        if (field === 'canView') {
+            currentPrivilege.canView = true;
+            currentPrivilege.canDownload = false;
+        } else if (field === 'canDownload') {
+            currentPrivilege.canView = false;
+            currentPrivilege.canDownload = true;
+        }
+
+        updatedPrivileges[index] = currentPrivilege;
+        setPrivileges(updatedPrivileges);
     };
 
     const handleAddMember = async () => {
@@ -154,6 +170,24 @@ const GroupMessageForm = () => {
                                     onChange={handleFileChange}
                                 />
                             </div>
+
+                            {/* File Privileges Selection */}
+                            {Array.from(attachments).map((attachment, index) => (
+                                <div key={index} className="mb-3">
+                                    <label className="form-label">{attachment.name}</label>
+                                    <InputGroup>
+                                        <FormControl
+                                            as="select"
+                                            value={privileges[index]?.canView ? 'canView' : 'canDownload'}
+                                            onChange={(e) => handlePrivilegeChange(index, e.target.value)}
+                                        >
+                                            <option value="canDownload">Download</option>
+                                            <option value="canView">View Only</option>
+                                        </FormControl>
+                                    </InputGroup>
+                                </div>
+                            ))}
+
                             <button type="submit" className="btn btn-primary">
                                 Send Message
                             </button>
@@ -168,8 +202,13 @@ const GroupMessageForm = () => {
                                 members.map((member) => (
                                     <ListGroup.Item key={member.id} style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                                         {member.email}
-                                        <Button variant="danger" size="sm" style={{ float: 'right' }} onClick={() => handleDeleteMember(member.id)}>
-                                            Delete
+                                        <Button
+                                            variant="danger"
+                                            size="sm"
+                                            style={{ float: 'right' }}
+                                            onClick={() => handleDeleteMember(member.id)}
+                                        >
+                                            Remove
                                         </Button>
                                     </ListGroup.Item>
                                 ))

@@ -44,54 +44,59 @@ const GroupInbox = () => {
         }
     }, [groupId, GROUP_MESSAGES_URL]);
 
-    const handleAttachmentClick = async (fileName) => {
+    const handleGroupAttachmentClick = async (fileName) => {
         try {
             const token = localStorage.getItem('authToken');
             if (!token) {
                 throw new Error('No authentication token found.');
             }
-
+    
             // Add groupId to the URL
             const fullEndpoint = `${VIEW_OR_DOWNLOAD_URL}?fileName=${encodeURIComponent(fileName)}&groupId=${encodeURIComponent(groupId)}`;
-
+    
             const response = await axios.get(fullEndpoint, {
                 headers: {
                     Authorization: `Bearer ${token}`
                 },
                 responseType: 'blob'
             });
-
+    
             const contentType = response.headers['content-type'];
-            const blob = new Blob([response.data], { type: contentType });
-            const url = window.URL.createObjectURL(blob);
-
-            // Always trigger download if download privilege is set
             const contentDisposition = response.headers['content-disposition'];
-            if (contentDisposition && contentDisposition.includes('attachment')) {
+            console.log("Content Type: " + contentType);
+            console.log("Content Disposition: " + contentDisposition);
+            
+            const url = window.URL.createObjectURL(new Blob([response.data], { type: contentType }));
+            const isAttachment = contentDisposition && contentDisposition.includes('attachment');
+            const isInline = contentDisposition && contentDisposition.includes('inline');
+        
+            if (isAttachment) {
                 const link = document.createElement('a');
                 link.href = url;
-                link.setAttribute('download', fileName);
+                link.setAttribute('download', fileName); // Specify the file name
+                
+                // Append to the body, click to download, and then remove the link
                 document.body.appendChild(link);
                 link.click();
-                link.remove();
-            } else {
-                // If the user can view the file and it's an image, open it in a new tab
-                if (contentType && contentType.startsWith('image/')) {
-                    window.open(url, '_blank');
+                document.body.removeChild(link);
+            } else if (isInline) {
+                const newTab = window.open(url, '_blank'); // Use the object URL here
+                if (newTab) {
+                    newTab.focus();
                 } else {
-                    // For other files, download if no view privilege
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.setAttribute('download', fileName);
-                    document.body.appendChild(link);
-                    link.click();
-                    link.remove();
+                    console.error('Failed to open file in a new tab.');
                 }
             }
+        
+            // Clean up the object URL
+            window.URL.revokeObjectURL(url);
+        
         } catch (err) {
-            console.error('Error handling attachment', err);
+            console.error('Error viewing attachment', err);
         }
+        
     };
+    
 
     // Extract the original file name from the full file name
     const getOriginalFileName = (fullFileName) => {
@@ -158,9 +163,9 @@ const GroupInbox = () => {
                                                         <li key={index}>
                                                             <button
                                                                 className="btn btn-primary btn-sm mt-2"
-                                                                onClick={() => handleAttachmentClick(attachment)}
+                                                                onClick={() => handleGroupAttachmentClick(attachment)}
                                                             >
-                                                                Get {getOriginalFileName(attachment)}
+                                                                 {getOriginalFileName(attachment)}
                                                             </button>
                                                         </li>
                                                     ))}
