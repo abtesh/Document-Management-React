@@ -15,8 +15,7 @@ function CreateIndividualMessage() {
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [searching, setSearching] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false); // Track dropdown visibility
 
   const allowedFileTypes = [
     "application/pdf",
@@ -53,28 +52,17 @@ function CreateIndividualMessage() {
   const handleSearchChange = (event) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
-    setReceiverEmail(query);
+    setShowDropdown(!!query); // Show dropdown only if there's a query
 
     const matchedUsers = users.filter(user => user.email && user.email.toLowerCase().includes(query));
-
-    if (matchedUsers.length === 1 && matchedUsers[0].email.toLowerCase() === query) {
-      // If a single user is found and the query matches exactly, set the receiverId
-      setReceiverId(matchedUsers[0].id);
-    } else {
-      // Reset receiverId if there's no exact match
-      setReceiverId("");
-    }
-
-    setShowDropdown(matchedUsers.length > 0 && query !== "");
     setFilteredUsers(matchedUsers);
   };
 
   const handleEmailSelect = (user) => {
     setReceiverEmail(user.email);
     setReceiverId(user.id);
-    setSearchQuery("");
-    setShowDropdown(false);
-    setSearching(false);
+    setSearchQuery(user.email); // Set the selected email in the search bar
+    setShowDropdown(false); // Hide the dropdown after selection
   };
 
   const handleContentChange = (event) => {
@@ -109,30 +97,14 @@ function CreateIndividualMessage() {
     };
   };
 
-  const findUserIdByEmail = (email) => {
-    const user = users.find(user => user.email === email);
-    return user ? user.id : null;
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     setError(null);
     setSuccess(null);
 
-    const isValidEmail = /\S+@\S+\.\S+/.test(receiverEmail);
-    if (!isValidEmail) {
-      setError("Receiver's Email is required and must be a valid email format.");
-      return;
-    }
-
     if (!receiverId) {
-      const matchingUserId = findUserIdByEmail(receiverEmail);
-      if (matchingUserId) {
-        setReceiverId(matchingUserId); // Set receiverId if the user is found
-      } else {
-        setError("Receiver's ID is required. Please select from the dropdown or enter a valid email.");
-        return;
-      }
+      setError("Receiver is required. Please select a user from the list.");
+      return;
     }
 
     const token = localStorage.getItem('authToken');
@@ -165,7 +137,7 @@ function CreateIndividualMessage() {
         const params = new URLSearchParams();
         params.append("messageId", messageId);
         params.append("attachmentId", attachment);
-        params.append("userId", receiverId); // Ensure receiverId is used correctly
+        params.append("userId", receiverId);
         params.append("canView", canView.toString());
         params.append("canDownload", canDownload.toString());
 
@@ -184,6 +156,7 @@ function CreateIndividualMessage() {
       setContent("");
       setAttachments([]);
       setPrivileges([]);
+      setSearchQuery("");
     } catch (error) {
       setError("Error sending message or setting privileges. Please try again.");
     }
@@ -201,44 +174,21 @@ function CreateIndividualMessage() {
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
               <label className="form-label">Receiver's Email</label>
-              <div className="input-group">
-                <input
-                  type="email"
-                  className="form-control"
-                  value={receiverEmail}
-                  onChange={e => setReceiverEmail(e.target.value)}
-                  placeholder="Receiver's email"
-                  required
-                />
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setSearching(true)}
-                >
-                  Search
-                </button>
-              </div>
-              {searching && (
-                <div className="mt-3 position-relative">
-                  <FormControl
-                    type="text"
-                    placeholder="Search for members..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                    className="mb-3"
-                  />
-                  {searchQuery && filteredUsers.length > 0 ? (
-                    <Dropdown.Menu show={showDropdown} style={{ width: '100%' }}>
-                      {filteredUsers.map(user => (
-                        <Dropdown.Item key={user.id} onClick={() => handleEmailSelect(user)}>
-                          {user.email}
-                        </Dropdown.Item>
-                      ))}
-                    </Dropdown.Menu>
-                  ) : (
-                    <p>No members found</p>
-                  )}
-                </div>
+              <FormControl
+                type="text"
+                placeholder="Search for members..."
+                value={searchQuery}
+                onChange={handleSearchChange}
+                className="mb-3"
+              />
+              {showDropdown && filteredUsers.length > 0 && (
+                <Dropdown.Menu show={true} style={{ width: '100%' }}>
+                  {filteredUsers.map(user => (
+                    <Dropdown.Item key={user.id} onClick={() => handleEmailSelect(user)}>
+                      {user.email}
+                    </Dropdown.Item>
+                  ))}
+                </Dropdown.Menu>
               )}
             </div>
             <div className="mb-4">

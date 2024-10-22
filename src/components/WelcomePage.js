@@ -10,7 +10,7 @@ function WelcomePage() {
         <Layout>
             <div className="container mt-5 text-center">
             <img src={myImage} alt="Logo" style={{ height:100, width: 160}} className="mb-4" />
-            <h1 className="mb-4"> Welcome </h1>
+            <h1 className="mb-4"> LIB File Sharing Portal </h1>
             <div className="d-flex justify-content-around">
                 <Link to="/message" className="btn btn-primary d-flex align-items-center px-4">
                 <FaEnvelope className="me-2"/>
@@ -24,25 +24,6 @@ function WelcomePage() {
             </div>
         </Layout>
     );
-    // return (
-    //     <Layout>
-    //         <div className="container mt-5 text-center">
-    //             {/* Add the logo centered */}
-    //             <img src={myImage} alt="Logo" style={{ height: 100, width: 160 }} className="mb-4" />
-    //             <h1 className="mb-4">Welcome</h1>
-    //             <div className="d-flex justify-content-around">
-    //                 <Link to="/message" className="btn btn-primary d-flex align-items-center px-4">
-    //                     <FaEnvelope className="me-2" />
-    //                     Send Message
-    //                 </Link>
-    //                 <Link to="/create-group" className="btn btn-success d-flex align-items-center px-4">
-    //                     <FaUsers className="me-2" />
-    //                     Create Group
-    //                 </Link>
-    //             </div>
-    //         </div>
-    //     </Layout>
-    // );
 }
 
 export default WelcomePage;
