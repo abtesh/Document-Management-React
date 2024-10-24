@@ -135,7 +135,6 @@ function Layout({ children }) {
                         paddingTop: '1rem'
                     }}>
                         <div className="position-sticky">
-                            <h3 className="sidebar-heading fw-bold text-light mb-4">Menu</h3>
                             <ul className="nav flex-column">
                                 <li className="nav-item mb-2">
                                     <Link className="nav-link px-3 py-2 rounded text-white" to="/groups">
