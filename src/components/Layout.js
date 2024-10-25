@@ -2,15 +2,26 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
 import 'bootstrap/dist/css/bootstrap.min.css';
-import myImage from '../Images/anbesa-removebg-preview.png'; 
+import myImage from '../Images/anbesa-removebg-preview.png';
 import '@fortawesome/fontawesome-free/css/all.min.css';
 import './Layout.css'; // Import your CSS file for media queries
 
 function Layout({ children }) {
-    const [isSidebarOpen, setSidebarOpen] = useState(false);
+    const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768); // Open by default on desktop
     const [unreadCount, setUnreadCount] = useState(0);
     const navigate = useNavigate();
-
+    
+    useEffect(() => {
+        const handleResize = () => {
+            setSidebarOpen(window.innerWidth >= 768); // Auto-open on larger screens
+        };
+    
+        window.addEventListener('resize', handleResize);
+        
+        // Cleanup the event listener on component unmount
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
+    
     // Function to extract user's name from token
     const getUser = () => {
         const token = localStorage.getItem('authToken');
@@ -85,15 +96,9 @@ function Layout({ children }) {
                             <a className="navbar-brand" href="/welcome-page">
                                 <img src={myImage} alt="Logo" style={{ height: 50, width: 80 }} />
                             </a>
-                            <div style={{ width: "440px" }}></div>
-
-                            {/* Welcome message */}
                             <span className="navbar-text ms-2 text-primary fw-bold">
                                 Welcome, {getUser()}
                             </span>
-                            <div style={{ width: "400px" }}></div>
-
-                            {/* Logout button */}
                             <div className="ms-auto">
                                 <button
                                     className="nav-link btn"
@@ -111,7 +116,6 @@ function Layout({ children }) {
                                 </button>
                             </div>
 
-                            {/* Hamburger menu for mobile */}
                             <button className="navbar-toggler" type="button" onClick={toggleSidebar}>
                                 <span className="navbar-toggler-icon"></span>
                             </button>
@@ -124,50 +128,50 @@ function Layout({ children }) {
             <div className="container-fluid">
                 <div className="row">
                     {/* Sidebar */}
-                    <nav className={`col-md-3 col-lg-2 d-md-block bg-dark text-white sidebar ${isSidebarOpen ? 'open' : ''}`} style={{ 
-                        position: 'fixed', 
-                        top: '60px', 
-                        left: 0, 
-                        bottom: 0, 
-                        width: '250px', 
-                        height: 'calc(100vh - 60px)', 
+                    <nav className={`sidebar ${isSidebarOpen ? 'open' : ''}`} style={{
+                        position: 'fixed',
+                        top: '60px',
+                        left: isSidebarOpen ? 0 : '-250px',
+                        bottom: 0,
+                        width: '250px',
+                        height: 'calc(100vh - 60px)',
                         overflowY: 'auto',
-                        paddingTop: '1rem'
+                        transition: 'left 0.3s ease-in-out',
+                        backgroundColor: '#343a40',
+                        zIndex: 1000
                     }}>
-                        <div className="position-sticky">
-                            <ul className="nav flex-column">
-                                <li className="nav-item mb-2">
-                                    <Link className="nav-link px-3 py-2 rounded text-white" to="/groups">
-                                        <i className="fas fa-users me-2"></i> Manage Groups
-                                    </Link>
-                                </li>
-                                <li className="nav-item mb-2">
-                                    <Link className="nav-link px-3 py-2 rounded text-white" to="/create-group">
-                                        <i className="fas fa-plus me-2"></i> Create Group
-                                    </Link>
-                                </li>
-                                <li className="nav-item mb-2">
-                                    <Link className="nav-link px-3 py-2 rounded text-white" to="/message">
-                                        <i className="fas fa-envelope me-2"></i> Send
-                                    </Link>
-                                </li>
-                                <li className="nav-item mb-2">
-                                    <Link className="nav-link px-3 py-2 rounded text-white" to="/inbox" onClick={markMessagesAsRead}>
-                                        <i className="fas fa-inbox me-2"></i> Inbox 
-                                        {unreadCount > 0 && <span className="badge bg-danger">{unreadCount}</span>}
-                                    </Link>
-                                </li>
-                                <li className="nav-item mb-2">
-                                    <Link className="nav-link px-3 py-2 rounded text-white" to="/sent">
-                                        <i className="fas fa-paper-plane me-2"></i> Sent
-                                    </Link>
-                                </li>
-                            </ul>
-                        </div>
+                        <ul className="nav flex-column">
+                            <li className="nav-item mb-2">
+                                <Link className="nav-link px-3 py-2 rounded text-white" to="/groups">
+                                    <i className="fas fa-users me-2"></i> Manage Groups
+                                </Link>
+                            </li>
+                            <li className="nav-item mb-2">
+                                <Link className="nav-link px-3 py-2 rounded text-white" to="/create-group">
+                                    <i className="fas fa-plus me-2"></i> Create Group
+                                </Link>
+                            </li>
+                            <li className="nav-item mb-2">
+                                <Link className="nav-link px-3 py-2 rounded text-white" to="/message">
+                                    <i className="fas fa-envelope me-2"></i> Send
+                                </Link>
+                            </li>
+                            <li className="nav-item mb-2">
+                                <Link className="nav-link px-3 py-2 rounded text-white" to="/inbox" onClick={markMessagesAsRead}>
+                                    <i className="fas fa-inbox me-2"></i> Inbox
+                                    {unreadCount > 0 && <span className="badge bg-danger">{unreadCount}</span>}
+                                </Link>
+                            </li>
+                            <li className="nav-item mb-2">
+                                <Link className="nav-link px-3 py-2 rounded text-white" to="/sent">
+                                    <i className="fas fa-paper-plane me-2"></i> Sent
+                                </Link>
+                            </li>
+                        </ul>
                     </nav>
 
                     {/* Main content */}
-                    <main className="col-md-9 ms-sm-auto col-lg-10 px-4" style={{ marginLeft: '250px' }}>
+                    <main className="col-md-9 ms-sm-auto col-lg-10 px-4" style={{ marginLeft: isSidebarOpen ? '250px' : '0', transition: 'margin-left 0.3s ease-in-out' }}>
                         {children}
                     </main>
                 </div>
