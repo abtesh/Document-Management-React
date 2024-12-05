@@ -1,14 +1,129 @@
 .login-container {
     background-color: #f8f9fa;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
 }
 
 .card {
     max-width: 400px;
     width: 100%;
     border-radius: 10px;
+    position: relative;
+    z-index: 2; /* Ensure the card is on top of the regions */
+    padding: 20px;
 }
 
 h2 {
     font-weight: bold;
     color: #007bff;
+}
+
+.phone-book-header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background-color: #f8f9fa;
+    justify-content: space-between; /* Adjusts spacing */
+    text-align: right;
+    padding: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+}
+.phone-book-header .bank-logo {
+    height: 100px; 
+    margin-right: 10px;
+}
+
+.phone-book-button {
+    font-size: 18px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #007bff;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.title-side-left{
+    position: absolute;
+    top: 28%;
+    left: 18%;
+
+}
+.title-side-right
+{
+    position: absolute;
+    top: 28%;
+    right: 18%;
+}
+.region-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+}
+
+.region-link {
+    font-size: 13px;
+    color: #4b4c4d;
+    font-weight: bold;
+    cursor: pointer;
+    position: absolute;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 250px;  /* Set a fixed width for the region box */
+    height: 50px;  /* Set a fixed height */
+    border-radius: 10px; /* Rounded corners like the login card */
+    background-color: #eceaea; /* White background */
+    border-color: #007bff;
+    border-width: 1px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    border: 1px solid #007bff; /* Light border */
+    transition: all 0.3s ease; /* Smooth transition for hover effects */
+}
+
+.region-link:hover {
+    background-color: #f1f1f1; /* Light grey background on hover */
+    transform: translateY(-4px); /* Slight raise effect */
+}
+
+.region-link:active {
+    background-color: #e0e0e0; /* Darker grey background on click */
+    transform: translateY(2px); /* Slight down effect on click */
+}
+
+.region-top-left {
+    top: 35%;  /* Positioning adjusted to fit within card */
+    left: 15%;
+}
+
+.region-top-right {
+    top: 35%;  /* Positioning adjusted to fit within card */
+    right: 15%;
+}
+
+.region-bottom-left {
+    bottom: 10%;  /* Positioning adjusted to fit within card */
+    left: 10%;
+}
+
+.region-bottom-right {
+    bottom: 10%;  /* Positioning adjusted to fit within card */
+    right: 10%;
+}
+
+.region-middle-left {
+    top: 50%;  /* Positioning adjusted to fit within card */
+    left: 15%;
+    transform: translateY(-50%);
+}
+
+.region-middle-right {
+    top: 50%;  /* Positioning adjusted to fit within card */
+    right: 15%;
+    transform: translateY(-50%);
 }

@@ -173,6 +173,7 @@ function CreateIndividualMessage() {
           {success && <div className="alert alert-success">{success}</div>}
           <form onSubmit={handleSubmit}>
             <div className="mb-4">
+              <label className="notification-label" > Select the names from Dropdown please</label>
               <label className="form-label">Receiver's Email</label>
               <FormControl
                 type="text"

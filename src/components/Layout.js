@@ -1,33 +1,34 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import axios from "axios";
-import 'bootstrap/dist/css/bootstrap.min.css';
-import myImage from '../Images/anbesa-removebg-preview.png';
-import '@fortawesome/fontawesome-free/css/all.min.css';
-import './Layout.css'; // Import your CSS file for media queries
+import "bootstrap/dist/css/bootstrap.min.css";
+import myImage from "../Images/anbesa-removebg-preview.png";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+import "./Layout.css"; // Import your CSS file for media queries
 
 function Layout({ children }) {
     const [isSidebarOpen, setSidebarOpen] = useState(window.innerWidth >= 768); // Open by default on desktop
     const [unreadCount, setUnreadCount] = useState(0);
+    const [showLogout, setShowLogout] = useState(false);
     const navigate = useNavigate();
-    
+
     useEffect(() => {
         const handleResize = () => {
             setSidebarOpen(window.innerWidth >= 768); // Auto-open on larger screens
         };
-    
-        window.addEventListener('resize', handleResize);
-        
+
+        window.addEventListener("resize", handleResize);
+
         // Cleanup the event listener on component unmount
-        return () => window.removeEventListener('resize', handleResize);
+        return () => window.removeEventListener("resize", handleResize);
     }, []);
-    
+
     // Function to extract user's name from token
     const getUser = () => {
-        const token = localStorage.getItem('authToken');
+        const token = localStorage.getItem("authToken");
         if (token) {
-            const base64Url = token.split('.')[1];
-            const base64 = base64Url.replace('-', '+').replace('_', '/');
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace("-", "+").replace("_", "/");
             const decodedToken = JSON.parse(window.atob(base64));
             return decodedToken.name;
         }
@@ -35,9 +36,9 @@ function Layout({ children }) {
     };
 
     const handleLogout = () => {
-        localStorage.removeItem('authToken');
-        navigate('/');
-        window.history.replaceState(null, null, '/');
+        localStorage.removeItem("authToken");
+        navigate("/");
+        window.history.replaceState(null, null, "/");
         window.location.reload(true);
     };
 
@@ -48,20 +49,24 @@ function Layout({ children }) {
     // Fetch unread message count from backend
     const fetchUnreadCount = async () => {
         try {
-            const token = localStorage.getItem('authToken');
-            const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/messenger/inbox/unread-count`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const token = localStorage.getItem("authToken");
+            const response = await axios.get(
+                `${process.env.REACT_APP_API_BASE_URL}/messenger/inbox/unread-count`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
             setUnreadCount(response.data);
         } catch (error) {
-            console.error('Error fetching unread message count:', error);
+            console.error("Error fetching unread message count:", error);
         }
     };
 
     useEffect(() => {
         fetchUnreadCount(); // Fetch unread count on component mount
+        setShowLogout(!!localStorage.getItem("authToken")); // Show logout button if authToken exists
 
         // Polling strategy: Refresh unread count every 10 seconds
         const intervalId = setInterval(fetchUnreadCount, 10000);
@@ -72,16 +77,19 @@ function Layout({ children }) {
     // Function to mark messages as read when inbox is opened
     const markMessagesAsRead = async () => {
         try {
-            const token = localStorage.getItem('authToken');
-            await axios.get(`${process.env.REACT_APP_API_BASE_URL}/messenger/inbox/mark-as-read`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            });
+            const token = localStorage.getItem("authToken");
+            await axios.get(
+                `${process.env.REACT_APP_API_BASE_URL}/messenger/inbox/mark-as-read`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }
+            );
             // After marking messages as read, fetch the updated unread count
             fetchUnreadCount();
         } catch (error) {
-            console.error('Error marking messages as read:', error);
+            console.error("Error marking messages as read:", error);
         }
     };
 
@@ -94,29 +102,41 @@ function Layout({ children }) {
                         <div className="container-fluid">
                             {/* Logo */}
                             <a className="navbar-brand" href="/welcome-page">
-                                <img src={myImage} alt="Logo" style={{ height: 50, width: 80 }} />
+                                <img
+                                    src={myImage}
+                                    alt="Logo"
+                                    style={{ height: 50, width: 80 }}
+                                />
                             </a>
                             <span className="navbar-text ms-2 text-primary fw-bold">
                                 Welcome, {getUser()}
                             </span>
-                            <div className="ms-auto">
-                                <button
-                                    className="nav-link btn"
-                                    style={{
-                                        backgroundColor: '#007bff',
-                                        color: '#ffffff',
-                                        width: 80,
-                                        height: 40,
-                                        border: 'none',
-                                        borderRadius: '4px'
-                                    }}
-                                    onClick={handleLogout}
-                                >
-                                    Logout
-                                </button>
-                            </div>
 
-                            <button className="navbar-toggler" type="button" onClick={toggleSidebar}>
+                            {/* Conditionally render the Logout button */}
+                            {showLogout && (
+                                <div className="ms-auto">
+                                    <button
+                                        className="nav-link btn"
+                                        style={{
+                                            backgroundColor: "#007bff",
+                                            color: "#ffffff",
+                                            width: 80,
+                                            height: 40,
+                                            border: "none",
+                                            borderRadius: "4px",
+                                        }}
+                                        onClick={handleLogout}
+                                    >
+                                        Logout
+                                    </button>
+                                </div>
+                            )}
+
+                            <button
+                                className="navbar-toggler"
+                                type="button"
+                                onClick={toggleSidebar}
+                            >
                                 <span className="navbar-toggler-icon"></span>
                             </button>
                         </div>
@@ -128,42 +148,66 @@ function Layout({ children }) {
             <div className="container-fluid">
                 <div className="row">
                     {/* Sidebar */}
-                    <nav className={`sidebar ${isSidebarOpen ? 'open' : ''}`} style={{
-                        position: 'fixed',
-                        top: '60px',
-                        left: isSidebarOpen ? 0 : '-250px',
-                        bottom: 0,
-                        width: '250px',
-                        height: 'calc(100vh - 60px)',
-                        overflowY: 'auto',
-                        transition: 'left 0.3s ease-in-out',
-                        backgroundColor: '#343a40',
-                        zIndex: 1000
-                    }}>
+                    <nav
+                        className={`sidebar ${isSidebarOpen ? "open" : ""}`}
+                        style={{
+                            position: "fixed",
+                            top: "60px",
+                            left: isSidebarOpen ? 0 : "-250px",
+                            bottom: 0,
+                            width: "250px",
+                            height: "calc(100vh - 60px)",
+                            overflowY: "auto",
+                            transition: "left 0.3s ease-in-out",
+                            backgroundColor: "#343a40",
+                            zIndex: 1000,
+                        }}
+                    >
+                        {/* Sidebar links */}
                         <ul className="nav flex-column">
                             <li className="nav-item mb-2">
-                                <Link className="nav-link px-3 py-2 rounded text-white" to="/groups">
+                                <Link
+                                    className="nav-link px-3 py-2 rounded text-white"
+                                    to="/groups"
+                                >
                                     <i className="fas fa-users me-2"></i> Manage Groups
                                 </Link>
                             </li>
                             <li className="nav-item mb-2">
-                                <Link className="nav-link px-3 py-2 rounded text-white" to="/create-group">
+                                <Link
+                                    className="nav-link px-3 py-2 rounded text-white"
+                                    to="/create-group"
+                                >
                                     <i className="fas fa-plus me-2"></i> Create Group
                                 </Link>
                             </li>
                             <li className="nav-item mb-2">
-                                <Link className="nav-link px-3 py-2 rounded text-white" to="/message">
+                                <Link
+                                    className="nav-link px-3 py-2 rounded text-white"
+                                    to="/message"
+                                >
                                     <i className="fas fa-envelope me-2"></i> Send
                                 </Link>
                             </li>
                             <li className="nav-item mb-2">
-                                <Link className="nav-link px-3 py-2 rounded text-white" to="/inbox" onClick={markMessagesAsRead}>
+                                <Link
+                                    className="nav-link px-3 py-2 rounded text-white"
+                                    to="/inbox"
+                                    onClick={markMessagesAsRead}
+                                >
                                     <i className="fas fa-inbox me-2"></i> Inbox
-                                    {unreadCount > 0 && <span className="badge bg-danger">{unreadCount}</span>}
+                                    {unreadCount > 0 && (
+                                        <span className="badge bg-danger">
+                                            {unreadCount}
+                                        </span>
+                                    )}
                                 </Link>
                             </li>
                             <li className="nav-item mb-2">
-                                <Link className="nav-link px-3 py-2 rounded text-white" to="/sent">
+                                <Link
+                                    className="nav-link px-3 py-2 rounded text-white"
+                                    to="/sent"
+                                >
                                     <i className="fas fa-paper-plane me-2"></i> Sent
                                 </Link>
                             </li>
@@ -171,7 +215,13 @@ function Layout({ children }) {
                     </nav>
 
                     {/* Main content */}
-                    <main className="col-md-9 ms-sm-auto col-lg-10 px-4" style={{ marginLeft: isSidebarOpen ? '250px' : '0', transition: 'margin-left 0.3s ease-in-out' }}>
+                    <main
+                        className="col-md-9 ms-sm-auto col-lg-10 px-4"
+                        style={{
+                            marginLeft: isSidebarOpen ? "250px" : "0",
+                            transition: "margin-left 0.3s ease-in-out",
+                        }}
+                    >
                         {children}
                     </main>
                 </div>
