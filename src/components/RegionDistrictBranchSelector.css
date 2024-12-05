@@ -32,20 +32,35 @@ h2 {
 .branch-details {
     background-color: #f8f9fa;
     border: 1px solid #ddd;
-    border-radius: 5px;
+    border-radius: 8px;
     padding: 20px;
     margin-top: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: left;  
+    width: 100%;  
+    max-width: 700px;  
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .branch-details h3 {
-    color: #28a745;
+    color: #000;
+    font-size: 1.5rem;
+    margin-bottom: 15px;
 }
 
 .branch-details p {
     font-size: 1rem;
-    color: #333;
+    color: #000;
+    margin-bottom: 10px;  
 }
 
 .branch-details p strong {
-    color: #007bff;
+    color: #000;  
+    margin-right: 10px; 
+    font-weight: bold;  
+}
+
+.branch-details p:last-child {
+    margin-bottom: 0;  
 }

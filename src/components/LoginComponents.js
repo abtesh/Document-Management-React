@@ -43,7 +43,7 @@ const LoginComponent = () => {
     return (
         <div className="login-container">
             {/* Phone Book Button */}
-            <div className="phone-book-header">
+            {/* <div className="phone-book-header">
             <img
                                     src={myImage}
                                     alt="Logo"
@@ -55,15 +55,13 @@ const LoginComponent = () => {
                 >
                     Phone Book
                 </button>
-            </div>
+            </div> */}
 
             {/* Regions */}
             <div className="title-side-left"> <h5> <b>Phone Directory</b></h5>  </div>
             <div className="title-side-right"> <h5> <b>Phone Directory</b></h5>  </div>
 
                         <div className="region-container">
-        
-        
                 {regions.slice(0, 1).map((region) => (
                     <div
                         key={region.id}

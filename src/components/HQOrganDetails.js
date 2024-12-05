@@ -73,18 +73,27 @@ const HQOrganDetails = () => {
                 </div>
             )}
 
-            {selectedStructure && details.length > 0 && (
-                <div>
-                    <h3>Details for {selectedStructure}</h3>
-                    <ul>
-                        {details.map((detail) => (
-                            <li key={detail.id}>
-                                {detail.organName} - {detail.landline}
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            )}
+{selectedStructure && details.length > 0 && (
+    <div>
+        <h3>
+            {selectedStructure}</h3>
+        <ul>
+            {details.map((detail) => (
+                <li key={detail.id}>
+                    <div>
+                        <strong>Landline:</strong> {detail.landline || "Not available"}
+                    </div>
+                    {/* Conditionally render Fax if it exists */}
+                    {detail.fax && (
+                        <div>
+                            <strong>Fax:</strong> {detail.fax}
+                        </div>
+                    )}
+                </li>
+            ))}
+        </ul>
+    </div>
+)}
         </div>
     );
 };

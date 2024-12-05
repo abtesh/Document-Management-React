@@ -67,7 +67,7 @@ const RegionDistrictBranchSelector = () => {
                         <option value="">Select a District</option>
                         {districts.map((district) => (
                             <option key={district.id} value={district.name}>
-                                {district.name}
+                                {district.name} - {district.districtManagerName} ({district.districtPhone})
                             </option>
                         ))}
                     </select>
