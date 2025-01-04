@@ -7,21 +7,44 @@ body {
     width: 250px;
     height: 100vh;
     position: fixed;
-    top: 60px; /* Default space below header */
+    top: 60px; /* Space below header */
     left: 0; /* Visible by default */
-    padding-top: 70px; /* Added padding to push content down */
+    padding-top: 70px; /* Push content down */
     transition: left 0.3s ease-in-out;
     background-color: #343a40; /* Sidebar background color */
     z-index: 1000; /* Keep it on top */
 }
 
-/* Reduce the header height on smaller screens */
+/* Style for sidebar links */
+.nav-link {
+    color: #ffffff; /* White text */
+    background-color: #343a40; /* Match sidebar background */
+    border: none; /* Remove default borders */
+    transition: background-color 0.3s ease, color 0.3s ease;
+    display: block; /* Ensure the full width is clickable */
+    padding: 0.75rem 1.25rem; /* Spacing for better UX */
+    border-radius: 0; /* Ensure no rounded corners */
+}
+
+/* Hover effect for links */
+.nav-link:hover {
+    background-color: #495057; /* Slightly lighter gray */
+    color: #ffffff; /* Keep text white */
+    text-decoration: none; /* Remove underline */
+}
+
+/* Active link state (optional) */
+.nav-link.active {
+    background-color: #007bff; /* Highlight active link */
+    color: #ffffff; /* White text */
+}
+
+/* Adjust for mobile responsiveness */
 @media (max-width: 768px) {
     .navbar {
         justify-content: space-between; /* Distribute space */
     }
 
-    /* Adjust the logout button and hamburger */
     .navbar .d-flex {
         position: absolute;
         top: 10px;
@@ -43,9 +66,30 @@ body {
     }
 }
 
-/* Keep content pushed to the right when sidebar is open */
+/* Main content area adjustment */
 .content {
     margin-left: 250px; /* Default margin */
     flex-grow: 1; /* Allow content to fill the space */
     transition: margin-left 0.3s ease-in-out;
+}
+
+/* Sidebar collapse behavior */
+.sidebar.collapsed {
+    left: -250px; /* Hide sidebar */
+}
+
+/* Override button styles */
+.nav-link.btn {
+    background-color: #343a40; /* Match sidebar */
+    color: #ffffff; /* White text */
+    border: none; /* Remove borders */
+    padding: 0.75rem 1.25rem; /* Spacing */
+    border-radius: 4px; /* Optional: slight rounding */
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Button hover effect */
+.nav-link.btn:hover {
+    background-color: #495057; /* Slightly lighter */
+    color: #ffffff; /* Keep text white */
 }
