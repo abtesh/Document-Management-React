@@ -20,7 +20,7 @@ import HQOrganDetails from "./components/HQOrganDetails";
 
 function App() {
   return (
-    <Router>
+    <Router basename={"/msg/"}>
       <Routes>
         {/* Login Page */}
         <Route path="/" element={<LoginComponent />} />
@@ -125,9 +125,3 @@ function App() {
 }
 
 export default App;
-
-
-
-       {/* Region and District Routes
-        <Route path="/districts/:regionId" element={<RegionPage />} />
-        <Route path="/district/:regionId/:districtName" element={<DistrictDetailsPage />} /> */}

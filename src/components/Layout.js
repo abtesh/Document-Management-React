@@ -35,12 +35,14 @@ function Layout({ children }) {
         return null;
     };
 
+
     const handleLogout = () => {
         localStorage.removeItem("authToken");
-        navigate("/");
-        window.history.replaceState(null, null, "/");
-        window.location.reload(true);
+        const logoutUrl = `${process.env.REACT_APP_API_BASE_URL.replace('/msg', '')}/lib/`;
+        window.location.href = logoutUrl;
     };
+
+
 
     const toggleSidebar = () => {
         setSidebarOpen(!isSidebarOpen);
@@ -101,7 +103,7 @@ function Layout({ children }) {
                     <nav className="navbar navbar-expand-lg navbar-light">
                         <div className="container-fluid">
                             {/* Logo */}
-                            <a className="navbar-brand" href="/welcome-page">
+                            <a className="navbar-brand" href="/msg/welcome-page">
                                 <img
                                     src={myImage}
                                     alt="Logo"
